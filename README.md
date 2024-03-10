@@ -3,6 +3,12 @@ This repository provides a Python implementation for using the Sirocco Energy AP
 
 We will be following the documentation provided by Sirocco Energy, which can be found [here](https://docs.sirocco.energy/#85b25ca7-8a0e-4f53-bbd2-55e9abf88dce).
 
+> Functions used can be found in the `sirocco_api.py` file.
+
+> Example usage can be found in the `api_examples.ipynb` jupyter notebook.
+
+> Unique requirements are: requests, pandas and matplotlib.
+
 ![Spain_2024_03_08](./images/Spain_2024_03_08.png)
 
 # Do you have any questions?
