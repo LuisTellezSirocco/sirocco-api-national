@@ -5,7 +5,7 @@
 import os
 from datetime import datetime, timezone
 from pprint import pprint
-from typing import Dict, Union, Any
+from typing import Any, Dict, Union
 
 import pandas as pd
 import requests
@@ -44,6 +44,34 @@ def get_available_timezones() -> Dict:
         return f"Error: An exception occurred - {str(e)}"  # Handling unexpected errors
 
 
+def get_all_projects() -> Dict:
+    """
+    Fetch all available projects from the Sirocco API.
+
+    Args:
+        auth_token (str): The authorization token to access the API.
+
+    Returns:
+        list: A list of dictionaries containing project information.
+
+    Raises:
+        Exception: Raises an exception if the API call fails or returns an error.
+    """
+    url = f"https://api.sirocco.energy/national/runs/{API_VERSION}/"
+    headers = {"Authorization": API_TOKEN}
+
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()  # Raises an HTTPError for bad responses (4XX, 5XX)
+        projects = (
+            response.json()
+        )  # Assuming the response is JSON and has the desired data directly
+        return projects  # Adjust this if the data structure is nested differently
+    except requests.exceptions.RequestException as e:
+        # Handle specific exceptions or general network related exceptions
+        raise Exception(f"Failed to fetch projects due to: {str(e)}")
+
+
 def get_my_projects(return_id_project: bool = False) -> Dict:
     """Function to get projects associated with the user's personal token."""
     # validate return_id_project is a boolean
@@ -60,7 +88,9 @@ def get_my_projects(return_id_project: bool = False) -> Dict:
                 return {p["id"]: p["name"] for p in my_projects["runs"]}
             return response.json()
         else:
-            raise Exception(f"Error: Received response with status code {response.status_code}")
+            raise Exception(
+                f"Error: Received response with status code {response.status_code}"
+            )
     except Exception as e:
         raise Exception(f"Error: An exception occurred - {str(e)}")
 
@@ -85,16 +115,18 @@ def get_forecasts_info(run, timezone="UTC") -> Dict:
         if response.status_code == 200:
             return response.json()  # Returning the JSON response if successful
         else:
-            raise Exception(f"Error: Received response with status code {response.status_code}")
+            raise Exception(
+                f"Error: Received response with status code {response.status_code}"
+            )
     except Exception as e:
         raise Exception(f"Error: An exception occurred - {str(e)}")
 
 
 def get_selected_forecast(
-        run: Union[int, str],
-        timezone: str = "UTC",
-        init_date: str = None,
-        end_date: str = None,
+    run: Union[int, str],
+    timezone: str = "UTC",
+    init_date: str = None,
+    end_date: str = None,
 ) -> Dict:
     """Function to get the latest complete forecast for a specified time interval.
 
@@ -111,7 +143,9 @@ def get_selected_forecast(
     try:
         int(run)
     except ValueError:
-        raise ValueError("Error: run must be an integer or a string that can be converted to an integer")
+        raise ValueError(
+            "Error: run must be an integer or a string that can be converted to an integer"
+        )
 
     # Constructing the API request URL with optional query parameters
     url = f"https://api.sirocco.energy/national/selectedforecast/{API_VERSION}/?run={run}&timezone={timezone}"
@@ -119,13 +153,17 @@ def get_selected_forecast(
         try:
             pd.to_datetime(end_date, format="%Y-%m-%d %H:%M:%S")
         except ValueError:
-            raise ValueError("Error: init_date must be in the format YYYY-mm-dd HH:MM:SS")
+            raise ValueError(
+                "Error: init_date must be in the format YYYY-mm-dd HH:MM:SS"
+            )
         url += f"&init={init_date}"
     if end_date:
         try:
             pd.to_datetime(end_date, format="%Y-%m-%d %H:%M:%S")
         except ValueError:
-            raise ValueError("Error: end_date must be in the format YYYY-mm-dd HH:MM:SS")
+            raise ValueError(
+                "Error: end_date must be in the format YYYY-mm-dd HH:MM:SS"
+            )
         url += f"&end={end_date}"
 
     headers = {
@@ -137,16 +175,18 @@ def get_selected_forecast(
         if response.status_code == 200:
             return response.json()  # Successful request returns JSON data
         else:
-            raise Exception(f"Error: Received response with status code {response.status_code}")
+            raise Exception(
+                f"Error: Received response with status code {response.status_code}"
+            )
     except Exception as e:
         raise Exception(f"Error: An exception occurred - {str(e)}")
 
 
 def get_backtests_info(
-        run: Union[int, str],
-        timezone: str = "UTC",
-        init_date: str = None,
-        end_date: str = None,
+    run: Union[int, str],
+    timezone: str = "UTC",
+    init_date: str = None,
+    end_date: str = None,
 ) -> Dict:
     """Function to obtain basic information for each forecast generated during the last 6 months.
 
@@ -162,20 +202,26 @@ def get_backtests_info(
     try:
         int(run)
     except ValueError:
-        raise ValueError("Error: run must be an integer or a string that can be converted to an integer")
+        raise ValueError(
+            "Error: run must be an integer or a string that can be converted to an integer"
+        )
     # Formatting the URL with the necessary query parameters
     url = f"https://api.sirocco.energy/national/backtests/{API_VERSION}/?run={run}&timezone={timezone}"
     if init_date:
         try:
             pd.to_datetime(end_date, format="%Y-%m-%d %H:%M:%S")
         except ValueError:
-            raise ValueError("Error: init_date must be in the format YYYY-mm-dd HH:MM:SS")
+            raise ValueError(
+                "Error: init_date must be in the format YYYY-mm-dd HH:MM:SS"
+            )
         url += f"&init={init_date}"
     if end_date:
         try:
             pd.to_datetime(end_date, format="%Y-%m-%d %H:%M:%S")
         except ValueError:
-            raise ValueError("Error: end_date must be in the format YYYY-mm-dd HH:MM:SS")
+            raise ValueError(
+                "Error: end_date must be in the format YYYY-mm-dd HH:MM:SS"
+            )
         url += f"&end={end_date}"
 
     headers = {"Authorization": API_TOKEN}  # Ensure API_TOKEN is defined securely
@@ -185,18 +231,20 @@ def get_backtests_info(
         if response.status_code == 200:
             return response.json()  # Returning JSON data if successful
         else:
-            raise Exception(f"Error: Received response with status code {response.status_code}")
+            raise Exception(
+                f"Error: Received response with status code {response.status_code}"
+            )
     except Exception as e:
         raise Exception(f"Error: An exception occurred - {str(e)}")
 
 
 def get_selected_backtests(
-        run: Union[int, str],
-        init_date: str = None,
-        end_date: str = None,
-        init_ahead: int = None,
-        end_ahead: int = None,
-        timezone: str = "UTC",
+    run: Union[int, str],
+    init_date: str = None,
+    end_date: str = None,
+    init_ahead: int = None,
+    end_ahead: int = None,
+    timezone: str = "UTC",
 ) -> Dict:
     """Function to obtain each forecast generated during the last 6 months.
 
@@ -214,20 +262,26 @@ def get_selected_backtests(
     try:
         int(run)
     except ValueError:
-        raise ValueError("Error: run must be an integer or a string that can be converted to an integer")
+        raise ValueError(
+            "Error: run must be an integer or a string that can be converted to an integer"
+        )
     # Constructing the API request URL with necessary query parameters
     url = f"https://api.sirocco.energy/national/selectedbacktests/{API_VERSION}/?run={run}&timezone={timezone}"
     if init_date:
         try:
             pd.to_datetime(init_date, format="%Y-%m-%d %H:%M:%S")
         except ValueError:
-            raise ValueError("Error: init_date must be in the format YYYY-mm-dd HH:MM:SS")
+            raise ValueError(
+                "Error: init_date must be in the format YYYY-mm-dd HH:MM:SS"
+            )
         url += f"&init={init_date}"
     if end_date:
         try:
             pd.to_datetime(end_date, format="%Y-%m-%d %H:%M:%S")
         except ValueError:
-            raise ValueError("Error: end_date must be in the format YYYY-mm-dd HH:MM:SS")
+            raise ValueError(
+                "Error: end_date must be in the format YYYY-mm-dd HH:MM:SS"
+            )
         url += f"&end={end_date}"
     if init_ahead:
         try:
@@ -261,6 +315,79 @@ def get_selected_backtests(
         if response.status_code == 200:
             return response.json()  # Returning JSON data if successful
         else:
-            raise Exception(f"Error: Received response with status code {response.status_code}")
+            raise Exception(
+                f"Error: Received response with status code {response.status_code}"
+            )
     except Exception as e:
         raise Exception(f"Error: An exception occurred - {str(e)}")
+
+
+def get_real_data(
+    run_id: Union[int, str],
+    init_date: str = None,
+    end_date: str = None,
+    timezone: str = "UTC",
+) -> Dict:
+    """
+    Fetch hour by hour real energy production for a selected project.
+
+    Args:
+        run_id (Union[int, str]): The run/project ID, must be an integer or convertible to an integer.
+        init_date (str, optional): Start date in 'YYYY-MM-DD HH:MM:SS' format. Defaults to None.
+        end_date (str, optional): End date in 'YYYY-MM-DD HH:MM:SS' format. Defaults to None.
+        timezone (str, optional): Timezone information for the date values. Defaults to "UTC".
+
+    Returns:
+        Dict: A dictionary containing real data information of energy production.
+
+    Raises:
+        ValueError: If the run_id, init_date, or end_date cannot be processed.
+        Exception: If the API call fails or returns an error.
+    """
+    # Check run is an integer or can be converted to an integer
+    try:
+        int(run_id)
+    except ValueError:
+        raise ValueError(
+            "Error: run must be an integer or a string that can be converted to an integer"
+        )
+
+    # Constructing the API request URL with optional query parameters
+    url = f"https://api.sirocco.energy/national/realdata/{API_VERSION}/?run={run_id}&timezone={timezone}"
+    if init_date:
+        try:
+            pd.to_datetime(init_date, format="%Y-%m-%d %H:%M:%S")
+        except ValueError:
+            raise ValueError(
+                "Error: init_date must be in the format YYYY-MM-DD HH:MM:SS"
+            )
+        url += f"&init={init_date}"
+
+    if end_date:
+        try:
+            pd.to_datetime(end_date, format="%Y-%m-%d %H:%M:%S")
+        except ValueError:
+            raise ValueError(
+                "Error: end_date must be in the format YYYY-MM-DD HH:MM:SS"
+            )
+        url += f"&end={end_date}"
+
+    headers = {
+        "Authorization": API_TOKEN
+    }  # API_TOKEN must be defined and secured elsewhere
+
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()  # Raises an HTTPError for bad responses (4XX, 5XX)
+        if response.status_code == 200:
+            return response.json()  # Successful request returns JSON data
+        else:
+            raise Exception(
+                f"Error: Received response with status code {response.status_code}"
+            )
+    except requests.exceptions.RequestException as e:
+        # Handle specific exceptions or general network related exceptions
+        raise Exception(f"Failed to fetch real data due to: {str(e)}")
+    except Exception as e:
+        raise Exception(f"Error: An exception occurred - {str(e)}")
+
